@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>خارطة طريق الذكاء الاصطناعي التوليدي والوكيل | أسامة & مرشد 🤝</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <meta name="theme-color" content="#0a0f1d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="AI Roadmap">
+</head>
+<body>
+
+  <!-- Confetti Canvas -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <!-- Toast Notification Box -->
+  <div id="toast-box" class="toast-box">
+    <span id="toast-icon">✨</span>
+    <span id="toast-msg">إشعار</span>
+  </div>
+
+  <div class="app-container">
+
+    <!-- Header Section -->
+    <header class="app-header">
+      <div class="header-top">
+        <div class="brand-wrapper">
+          <div class="brand-icon">⚡</div>
+          <div class="brand-info">
+            <h1>خارطة طريق الـ Generative & Agentic AI</h1>
+            <p>لوحة المتابعة المشتركة وتحدي الـ 5 أشهر • <strong>أسامة & مرشد والأصدقاء 🤝</strong></p>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <button class="btn btn-primary" id="btn-pomodoro-toggle">
+            <span>⏱️ مؤقت التركيز (Pomodoro)</span>
+          </button>
+          <button class="btn" id="btn-mobile-guide" title="كيفية تثبيت التطبيق على الموبايل كأبلكيشن مستقل">
+            <span>📱 تثبيت على الموبايل</span>
+          </button>
+          <button class="btn" id="btn-open-sync-modal" title="إعدادات المزامنة السحابية والمشاركة">
+            <span id="cloud-sync-icon">☁️</span> <span id="cloud-sync-label">المزامنة السحابية</span>
+          </button>
+          <button class="btn" id="btn-export-menu" title="تصدير أو مشاركة تقدمك">
+            <span>💾 نسخ احتياطي / مشاركة</span>
+          </button>
+          <button class="btn" id="btn-import-trigger" title="استرجاع بيانات سابقة">
+            <span>📥 استرجاع بيانات</span>
+          </button>
+          <input type="file" id="file-import" accept=".json" style="display:none;">
+          <button class="btn" id="btn-print" title="طباعة أو حفظ التقرير كملف PDF">
+            <span>🖨️ طباعة</span>
+          </button>
+          <button class="btn" id="btn-reset" title="إعادة تعيين التقدم">
+            <span>🔄 إعادة ضبط</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- User Identity Bar -->
+      <div class="user-identity-bar">
+        <div style="font-size: 13px; font-weight:700; color:var(--text-muted); display:flex; align-items:center; gap:6px;">
+          <span>👤 جهازك مسجل باسم:</span>
+        </div>
+
+        <div class="user-badge-current" id="active-user-badge" onclick="openSwitchUserModal()" title="اضغط لتبديل المستخدم على هذا الجهاز">
+          <div class="user-avatar-circle" id="header-user-avatar">👑</div>
+          <div class="user-info-text">
+            <div class="user-info-name">
+              <span id="header-user-name">أسامة</span>
+              <span style="font-size:11px; color:var(--accent-cyan); font-weight:normal;">(أنت • اضغط للتبديل 🔄)</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="mode-pill-container">
+          <span class="mode-pill edit" id="header-mode-pill">🟢 وضع التحرير النشط (ملفك الخاص)</span>
+        </div>
+
+        <button class="sync-status-btn" id="sync-quick-btn" onclick="syncNow()" title="اضغط للمزامنة الفورية مع السيرفر أو السحابة">
+          <span id="sync-indicator-dot">⚪</span>
+          <span id="sync-quick-text">مزامنة فورية</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Read-Only Sticky / Top Warning Banner -->
+    <div class="readonly-alert-banner" id="readonly-banner" style="display: none;">
+      <div class="readonly-alert-content">
+        <span class="readonly-alert-icon">🔒</span>
+        <div>
+          <div class="readonly-alert-title">
+            أنت تشاهد حالياً خارطة طريق: <span id="readonly-user-title">مُرشِد</span> (وضع المشاهدة والاطلاع فقط)
+          </div>
+          <div class="readonly-alert-sub">
+            لا يمكنك تعديل مهام أو ملاحظات صديقك. كل واحد بيعدل على الرود ماب بتاعته فقط على جهازه عشان المنافسة تكون حقيقية! 😉
+          </div>
+        </div>
+      </div>
+      <button class="btn btn-sm btn-primary" onclick="switchToMyProfile()">
+        <span>↩️ العودة لملفي الخاص (<span id="back-to-my-name">أسامة</span>)</span>
+      </button>
+    </div>
+
+    <!-- Accountability Hub & Friendly Competition Arena -->
+    <section class="challenge-section glass-card" id="challenge-hub">
+      <div class="challenge-header">
+        <div class="challenge-title-group">
+          <h3>
+            <span>⚔️ ساحة التحدي والمنافسة المشتركة (Roadmap Arena)</span>
+          </h3>
+          <p>
+            رحلة الـ 5 أشهر سوا خطوة بخطوة • تابع تقدم كل واحد لحظة بلحظة وشجع صاحبك عشان محدش يكسل! 🚀
+          </p>
+        </div>
+
+        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+          <button class="btn btn-sm" id="btn-add-friend" onclick="openAddFriendModal()">
+            <span>➕ إضافة صديق جديد للتحدي</span>
+          </button>
+          <button class="btn btn-sm btn-primary" onclick="syncNow()">
+            <span>🔄 تحديث البيانات سحابياً</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Head to Head Motivational Banner -->
+      <div class="head-to-head-banner" id="h2h-banner">
+        <div class="h2h-message" id="h2h-message">
+          <span>🔥 جاري حساب حالة المنافسة بين أسامة ومرشد...</span>
+        </div>
+        <div class="h2h-bar-wrapper" id="h2h-bar-wrapper">
+          <div class="h2h-bar-fill" id="h2h-bar-user1" style="width: 50%; background: #3b82f6;"></div>
+          <div class="h2h-bar-fill" id="h2h-bar-user2" style="width: 50%; background: #10b981;"></div>
+        </div>
+      </div>
+
+      <!-- Players Cards Grid (Osama, Morshid & any added friend) -->
+      <div class="players-grid" id="players-grid">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+    </section>
+
+    <!-- Viewing Tabs Selector -->
+    <div style="margin-bottom: 20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span style="font-size:13.5px; font-weight:800; color:var(--text-muted);">📍 أنت تستعرض الآن:</span>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;" id="viewing-tabs-list">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+      <div style="font-size:12px; color:var(--text-dim);" id="viewing-mode-note">
+        <!-- Mode note populated by JS -->
+      </div>
+    </div>
+
+    <!-- Hero Analytics & Gauge Section -->
+    <section class="hero-section">
+      <!-- Circular Progress Gauge -->
+      <div class="glass-card gauge-card">
+        <div style="font-size: 13.5px; font-weight: 800; margin-bottom: 12px; color: var(--accent-cyan); display: flex; align-items: center; gap: 6px;">
+          <span id="gauge-profile-avatar">👑</span>
+          <span id="gauge-profile-title">إنجاز أسامة الحالي</span>
+        </div>
+        <div class="gauge-wrapper">
+          <svg class="circular-gauge" viewBox="0 0 200 200">
+            <defs>
+              <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#3b82f6" />
+                <stop offset="50%" stop-color="#8b5cf6" />
+                <stop offset="100%" stop-color="#10b981" />
+              </linearGradient>
+            </defs>
+            <circle class="gauge-bg" cx="100" cy="100" r="90" />
+            <circle class="gauge-progress" id="gauge-circle" cx="100" cy="100" r="90" />
+          </svg>
+          <div class="gauge-center">
+            <span class="gauge-percentage" id="gauge-text">0%</span>
+            <span class="gauge-label">نسبة الإنجاز الكلية</span>
+          </div>
+        </div>
+        <div style="font-size:13px; color:var(--text-muted); text-align:center;">
+          الهدف: 15 إلى 20 ساعة أسبوعياً مع مشروع عملي كل شهر 🎯
+        </div>
+      </div>
+
+      <!-- Quick Stats Grid -->
+      <div class="glass-card" style="display:flex; flex-direction:column; justify-content:space-between;">
+        <div class="hero-stats-grid">
+          <!-- Stat 1: Tasks -->
+          <div class="stat-box">
+            <div class="stat-icon stat-blue">📋</div>
+            <div class="stat-content">
+              <div class="stat-label">المهام المنجزة</div>
+              <div class="stat-value" id="stat-completed-tasks">0 / 80</div>
+              <div class="stat-sub" id="stat-tasks-pct">0% منجز من المهام</div>
+            </div>
+          </div>
+
+          <!-- Stat 2: Projects -->
+          <div class="stat-box">
+            <div class="stat-icon stat-purple">🏆</div>
+            <div class="stat-content">
+              <div class="stat-label">المشاريع العملية المنشورة</div>
+              <div class="stat-value" id="stat-projects-count">0 / 5</div>
+              <div class="stat-sub" id="stat-projects-sub">5 مشاريع متبقية للتخرج</div>
+            </div>
+          </div>
+
+          <!-- Stat 3: Estimated Hours -->
+          <div class="stat-box">
+            <div class="stat-icon stat-emerald">⏱️</div>
+            <div class="stat-content">
+              <div class="stat-label">ساعات المذاكرة المنجزة</div>
+              <div class="stat-value" id="stat-hours-completed">0 ساعة</div>
+              <div class="stat-sub" id="stat-hours-remaining">350 ساعة مذاكرة متبقية</div>
+            </div>
+          </div>
+
+          <!-- Stat 4: Streak & Focus -->
+          <div class="stat-box">
+            <div class="stat-icon stat-amber">🔥</div>
+            <div class="stat-content">
+              <div class="stat-label">أيام الالتزام والتركيز</div>
+              <div class="stat-value" id="stat-streak">1 أيام 🔥</div>
+              <div class="stat-sub" id="stat-sessions">0 جلسة تركيز (Pomodoro)</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Next Up Banner -->
+        <div class="next-up-banner" id="next-up-container">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Month Navigation Pills -->
+    <nav class="months-nav-bar" id="months-nav-container">
+      <!-- Populated by JS -->
+    </nav>
+
+    <!-- Comparison Section: GenAI vs Agentic AI -->
+    <section class="comparison-container glass-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; cursor:pointer;" onclick="document.getElementById('comparison-collapsible').classList.toggle('hidden')">
+        <h3 style="font-size:16px; font-weight:800; display:flex; align-items:center; gap:8px;">
+          <span>💡 الفرق بين الذكاء الاصطناعي التوليدي والوكيل (Generative vs Agentic AI)</span>
+        </h3>
+        <span style="font-size:12px; color:var(--accent-purple); font-weight:600;">(اضغط للإظهار / الإخفاء)</span>
+      </div>
+      <div id="comparison-collapsible">
+        <p style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">
+          تبني الأشهر 1 إلى 4 الأساس التوليدي (Generative AI)، ويأتي الشهر الخامس ليضيف القدرة الوكيلة (Agentic AI) عبر إعطاء النماذج أدوات وأهدافاً واستقلالية.
+        </p>
+        <div style="overflow-x:auto;">
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th style="width: 20%;">المحور (Aspect)</th>
+                <th class="th-genai" style="width: 40%;">الذكاء الاصطناعي التوليدي (Generative AI)</th>
+                <th class="th-agentic" style="width: 40%;">الذكاء الاصطناعي الوكيل (Agentic AI)</th>
+              </tr>
+            </thead>
+            <tbody id="comparison-body">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Search & Filters Toolbar -->
+    <section class="controls-bar">
+      <div class="search-input-wrapper">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="search-input" class="search-input" placeholder="ابحث عن موضوع، أداة أو تقنية (مثال: PyTorch, RAG, LoRA, MCP)...">
+      </div>
+
+      <div class="filter-pills">
+        <button class="filter-btn active" data-filter="all">عرض الكل (20 أسبوع)</button>
+        <button class="filter-btn" data-filter="pending">المهام المتبقية فقط</button>
+        <button class="filter-btn" data-filter="completed">المهام المكتملة</button>
+        <button class="filter-btn" data-filter="projects">مشاريع التخرج الشهرية (5)</button>
+      </div>
+    </section>
+
+    <!-- Main Dynamic Roadmap Content -->
+    <main id="roadmap-content">
+      <!-- Populated dynamically by app.js -->
+    </main>
+
+    <!-- Career & Getting Paid Launchpad -->
+    <section class="career-section glass-card" id="career-launchpad">
+      <div style="margin-bottom:16px;">
+        <h3 style="font-size:19px; font-weight:800; display:flex; align-items:center; gap:8px;">
+          <span>💼 خطة الانطلاق المهني والربح (Getting Paid For It)</span>
+        </h3>
+        <p style="font-size:13.5px; color:var(--text-muted); margin-top:4px;">
+          نصائح ذهبية لتسويق مهاراتك على منصات العمل الحر مثل Upwork والتقديم على الوظائف التقنية من واقع خريطة الطريق:
+        </p>
+      </div>
+
+      <div class="career-grid" id="career-checklist-container">
+        <!-- Populated by JS -->
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Switch User Modal (من أنت؟) -->
+  <div class="modal-overlay" id="switch-user-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title">👤 اختيار المستخدم على هذا الجهاز</div>
+        <button class="modal-close" onclick="closeModal('switch-user-modal')">✕</button>
+      </div>
+      <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">
+        اختر اسمك ليتم تسجيل إنجازاتك الخاصة بهذا الحساب، ويمكنك تصفح تقدم أصدقائك في أي وقت كوضع مشاهدة:
+      </p>
+
+      <div id="switch-user-list" style="display:flex; flex-direction:column; gap:10px; margin-bottom:18px;">
+        <!-- Populated by JS -->
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+        <button class="btn btn-sm" onclick="closeModal('switch-user-modal'); openAddFriendModal();">
+          <span>➕ إضافة شخص جديد</span>
+        </button>
+        <button class="btn btn-sm btn-primary" onclick="closeModal('switch-user-modal')">
+          <span>إغلاق</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Friend Modal -->
+  <div class="modal-overlay" id="add-friend-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title">➕ إضافة صديق جديد للتحدي</div>
+        <button class="modal-close" onclick="closeModal('add-friend-modal')">✕</button>
+      </div>
+      <p style="font-size:13px; color:var(--text-muted); margin-bottom:14px;">
+        أدخل بيانات الصديق الذي سيبدأ معكم رحلة التعلم وسينضم فوراً لساحة التحدي:
+      </p>
+
+      <form id="add-friend-form" onsubmit="handleAddFriendSubmit(event)">
+        <div class="form-group">
+          <label class="form-label">الاسم (بالعربي أو الإنجليزي):</label>
+          <input type="text" id="friend-name-input" class="form-input" placeholder="مثال: يوسف، أحمد، سارة..." required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">اللقب / الهدف التحفيزي (اختياري):</label>
+          <input type="text" id="friend-role-input" class="form-input" placeholder="مثال: AI Explorer, Freelancer..." value="Study Partner & AI Explorer">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">اختر الأيقونة / الإيموجي:</label>
+          <div class="emoji-picker-grid" id="avatar-picker-grid">
+            <span class="emoji-option selected" data-emoji="⚡">⚡</span>
+            <span class="emoji-option" data-emoji="👑">👑</span>
+            <span class="emoji-option" data-emoji="🚀">🚀</span>
+            <span class="emoji-option" data-emoji="🤖">🤖</span>
+            <span class="emoji-option" data-emoji="🧠">🧠</span>
+            <span class="emoji-option" data-emoji="🔥">🔥</span>
+            <span class="emoji-option" data-emoji="🎯">🎯</span>
+            <span class="emoji-option" data-emoji="💻">💻</span>
+            <span class="emoji-option" data-emoji="🦾">🦾</span>
+            <span class="emoji-option" data-emoji="🌟">🌟</span>
+          </div>
+          <input type="hidden" id="friend-emoji-input" value="⚡">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">اختر لون التمييز:</label>
+          <div class="color-picker-grid" id="color-picker-grid">
+            <span class="color-option selected" style="background:#3b82f6;" data-color="#3b82f6"></span>
+            <span class="color-option" style="background:#10b981;" data-color="#10b981"></span>
+            <span class="color-option" style="background:#8b5cf6;" data-color="#8b5cf6"></span>
+            <span class="color-option" style="background:#f59e0b;" data-color="#f59e0b"></span>
+            <span class="color-option" style="background:#06b6d4;" data-color="#06b6d4"></span>
+            <span class="color-option" style="background:#ec4899;" data-color="#ec4899"></span>
+          </div>
+          <input type="hidden" id="friend-color-input" value="#3b82f6">
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+          <button type="button" class="btn" onclick="closeModal('add-friend-modal')">إلغاء</button>
+          <button type="submit" class="btn btn-primary">➕ إضافة للتحدي الآن</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Cloud Sync & Sharing Modal -->
+  <div class="modal-overlay" id="cloud-sync-modal">
+    <div class="modal-box wide">
+      <div class="modal-header">
+        <div class="modal-title">☁️ إعدادات المزامنة والمشاركة الحية</div>
+        <button class="modal-close" onclick="closeModal('cloud-sync-modal')">✕</button>
+      </div>
+
+      <div style="font-size:13px; line-height:1.6; color:var(--text-muted); margin-bottom:16px;">
+        لكي يرى أسامة ومرشد إنجازات بعضهما لحظياً من هواتفهما المحمولة، اختر الطريقة المناسبة:
+      </div>
+
+      <!-- Tab Buttons for Sync Methods -->
+      <div style="display:flex; gap:8px; margin-bottom:16px; border-bottom:1px solid var(--border-color); padding-bottom:10px;">
+        <button class="btn btn-sm active" id="tab-btn-firebase" onclick="switchSyncTab('firebase')">
+          <span>🔥 المزامنة السحابية (Firebase - مجاناً 24/7)</span>
+        </button>
+        <button class="btn btn-sm" id="tab-btn-server" onclick="switchSyncTab('server')">
+          <span>💻 سيرفر محلي / سحابي (Python Server)</span>
+        </button>
+        <button class="btn btn-sm" id="tab-btn-peer" onclick="switchSyncTab('peer')">
+          <span>📲 مشاركة يدوية سريعة</span>
+        </button>
+      </div>
+
+      <!-- Option 1: Firebase Realtime Database (Recommended) -->
+      <div id="sync-tab-firebase">
+        <div style="background:rgba(245, 158, 11, 0.1); border:1px solid rgba(245, 158, 11, 0.3); border-radius:var(--radius-sm); padding:10px 14px; margin-bottom:14px; font-size:12.5px; color:#fde68a;">
+          ⭐ <strong>الخيار الأفضل والأسهل:</strong> قاعدة بيانات مجانية 100% من جوجل Firebase، تربط بين هواتفكم في أي مكان بدون الحاجة لتشغيل اللاب توب!
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">رابط قاعدة بيانات Firebase Realtime Database:</label>
+          <input type="text" id="firebase-url-input" class="form-input" placeholder="https://your-project-default-rtdb.firebaseio.com">
+          <div style="font-size:11.5px; color:var(--text-dim); margin-top:4px;">
+            مثال: <code>https://ai-roadmap-team-default-rtdb.firebaseio.com</code>
+          </div>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:16px;">
+          <input type="checkbox" id="firebase-auto-sync" checked style="width:16px; height:16px;">
+          <label for="firebase-auto-sync" style="font-size:13px; color:var(--text-main); cursor:pointer;">
+            مزامنة تلقائية في الخلفية كل 15 ثانية وعند تحديد أي مهمة
+          </label>
+        </div>
+
+        <div style="display:flex; gap:10px; margin-bottom:16px;">
+          <button class="btn btn-primary" onclick="saveAndTestFirebase()">
+            <span>💾 حفظ واختبار الاتصال ومزامنة فورية</span>
+          </button>
+          <button class="btn" onclick="syncNow()">
+            <span>🔄 مزامنة الآن</span>
+          </button>
+        </div>
+
+        <div style="background:rgba(255, 255, 255, 0.03); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:12px; font-size:12px; color:var(--text-muted);">
+          <strong>📖 كيف تعمل حساب Firebase مجاني في دقيقتين؟</strong>
+          <ol style="margin-right:20px; margin-top:6px; line-height:1.6;">
+            <li>ادخل على موقع <a href="https://console.firebase.google.com" target="_blank" style="color:var(--accent-blue);">Firebase Console</a> بحساب جوجل واضغط <strong>Create a project</strong>.</li>
+            <li>من القائمة الجانبية اختر <strong>Build ➔ Realtime Database</strong> ثم <strong>Create Database</strong>.</li>
+            <li>في تبويب <strong>Rules</strong>، اكتب <code>".read": true, ".write": true</code> واضغط <strong>Publish</strong>.</li>
+            <li>انسخ الرابط الذي يظهر في الأعلى وضعه هنا واضغط "حفظ ومزامنة"!</li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- Option 2: Python Server Sync -->
+      <div id="sync-tab-server" style="display:none;">
+        <div style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">
+          عند تشغيل <code>python server.py</code> على اللاب توب أو رفعه على سيرفر سحابي مجاني مثل Render أو Railway:
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">رابط السيرفر (Server API URL):</label>
+          <input type="text" id="server-url-input" class="form-input" placeholder="http://localhost:8080 أو رابط Render السحابي">
+        </div>
+
+        <div style="display:flex; gap:10px; margin-top:14px;">
+          <button class="btn btn-primary" onclick="saveServerUrl()">
+            <span>💾 حفظ ورابط المزامنة</span>
+          </button>
+          <button class="btn" onclick="syncWithPythonServer()">
+            <span>🔄 مزامنة مع السيرفر الآن</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Option 3: Quick Peer Export / Import -->
+      <div id="sync-tab-peer" style="display:none;">
+        <div style="font-size:13px; color:var(--text-muted); margin-bottom:14px;">
+          يمكنك إرسال ملف تقدمك لصديقك على WhatsApp، وعندما يستورده سيتم تحديث بياناتك عنده فوراً دون المساس بمهامه الخاصة!
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <button class="btn btn-primary" onclick="exportMyProgressOnly()">
+            <span>📤 تصدير ملف تقدمي فقط (<span id="peer-export-name">أسامة</span>) لإرساله لـ مرشد</span>
+          </button>
+          <button class="btn" onclick="document.getElementById('file-import-friend').click()">
+            <span>📥 استيراد ملف تحديثات الصديق ودمجها</span>
+          </button>
+          <input type="file" id="file-import-friend" accept=".json" style="display:none;" onchange="importFriendProgress(event)">
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Mobile Installation Guide Modal (PWA) -->
+  <div class="modal-overlay" id="mobile-guide-modal">
+    <div class="modal-box wide">
+      <div class="modal-header">
+        <div class="modal-title">📱 كيفية تثبيت التطبيق على الموبايل كأبلكيشن مستقل</div>
+        <button class="modal-close" onclick="closeModal('mobile-guide-modal')">✕</button>
+      </div>
+
+      <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">
+        تم تصميم هذا التطبيق بتقنية <strong>PWA (Progressive Web App)</strong> ليعمل على هاتفك مثل التطبيقات الأصلية تماماً: شاشة كاملة بدون شريط متصفح، أيقونة على شاشة الموبايل الرئيسية، وسرعة فائقة!
+      </p>
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:20px;">
+        <!-- Android Guide -->
+        <div style="background:rgba(16, 185, 129, 0.05); border:1px solid rgba(16, 185, 129, 0.2); border-radius:var(--radius-md); padding:16px;">
+          <div style="font-weight:800; font-size:15px; color:#34d399; margin-bottom:10px; display:flex; align-items:center; gap:6px;">
+            <span>🤖 هواتف أندرويد (Google Chrome):</span>
+          </div>
+          <div class="guide-step">
+            <div class="guide-step-num">1</div>
+            <div class="guide-step-text">افتح رابط التطبيق في متصفح <strong>Google Chrome</strong> على موبايلك.</div>
+          </div>
+          <div class="guide-step">
+            <div class="guide-step-num">2</div>
+            <div class="guide-step-text">اضغط على زر القائمة <strong>(الثلاث نقاط ⋮)</strong> أعلى يمين أو يسار الشاشة.</div>
+          </div>
+          <div class="guide-step">
+            <div class="guide-step-num">3</div>
+            <div class="guide-step-text">اختر <strong>"إضافة إلى الشاشة الرئيسية"</strong> أو <strong>"تثبيت التطبيق (Install App)"</strong>.</div>
+          </div>
+          <div class="guide-step">
+            <div class="guide-step-num">4</div>
+            <div class="guide-step-text">مبروك! سيظهر تطبيق <strong>AI Roadmap</strong> بأيقونته الرسمية على شاشتك.</div>
+          </div>
+        </div>
+
+        <!-- iOS Guide -->
+        <div style="background:rgba(59, 130, 246, 0.05); border:1px solid rgba(59, 130, 246, 0.2); border-radius:var(--radius-md); padding:16px;">
+          <div style="font-weight:800; font-size:15px; color:#60a5fa; margin-bottom:10px; display:flex; align-items:center; gap:6px;">
+            <span>🍏 هواتف آيفون (Apple Safari):</span>
+          </div>
+          <div class="guide-step">
+            <div class="guide-step-num">1</div>
+            <div class="guide-step-text">افتح رابط التطبيق في متصفح <strong>Safari</strong> على الآيفون.</div>
+          </div>
+          <div class="guide-step">
+            <div class="guide-step-num">2</div>
+            <div class="guide-step-text">اضغط على زر المشاركة <strong>(مربع وسهم لأعلى 📤)</strong> في أسفل الشاشة.</div>
+          </div>
+          <div class="guide-step">
+            <div class="guide-step-num">3</div>
+            <div class="guide-step-text">مرر لأسفل واختر <strong>"إضافة إلى الصفحة الرئيسية (Add to Home Screen)"</strong>.</div>
+          </div>
+          <div class="guide-step">
+            <div class="guide-step-num">4</div>
+            <div class="guide-step-text">اضغط <strong>"إضافة (Add)"</strong> أعلى اليمين. سيفتح كأبلكيشن مستقل بشاشة كاملة!</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align:center;">
+        <button class="btn btn-primary" onclick="closeModal('mobile-guide-modal')">
+          <span>فهمت، جاهز للتجربة! 🚀</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pomodoro Modal -->
+  <div class="modal-overlay" id="pomodoro-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title">⏱️ جلسة مذاكرة وتركيز (Pomodoro)</div>
+        <button class="modal-close" onclick="closeModal('pomodoro-modal')">✕</button>
+      </div>
+      <p style="font-size:13px; color:var(--text-muted); text-align:center;">
+        25 دقيقة تركيز تام بدون تشتت على كود اليوم، تليها استراحة 5 دقائق.
+      </p>
+
+      <div class="timer-display" id="pomodoro-display">25:00</div>
+
+      <div class="timer-controls">
+        <button class="btn btn-primary" id="timer-start-btn" style="flex:1;">
+          <span>▶️ ابدأ جلسة التركيز (25 دقيقة)</span>
+        </button>
+        <button class="btn" id="timer-reset-btn">
+          <span>🔄 إعادة ضبط</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(err => {
+          console.log('ServiceWorker note:', err);
+        });
+      });
+    }
+  </script>
+</body>
+</html>
